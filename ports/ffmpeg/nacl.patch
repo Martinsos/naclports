@@ -1,7 +1,7 @@
 diff --git a/ffmpeg.c b/ffmpeg.c
 --- a/ffmpeg.c
 +++ b/ffmpeg.c
-@@ -3360,7 +3360,7 @@ static int transcode(void)
+@@ -3937,7 +3937,7 @@ static int transcode(void)
  
  static int64_t getutime(void)
  {
@@ -10,7 +10,7 @@ diff --git a/ffmpeg.c b/ffmpeg.c
      struct rusage rusage;
  
      getrusage(RUSAGE_SELF, &rusage);
-@@ -3378,7 +3378,7 @@ static int64_t getutime(void)
+@@ -3955,7 +3955,7 @@ static int64_t getutime(void)
  
  static int64_t getmaxrss(void)
  {
@@ -19,3 +19,33 @@ diff --git a/ffmpeg.c b/ffmpeg.c
      struct rusage rusage;
      getrusage(RUSAGE_SELF, &rusage);
      return (int64_t)rusage.ru_maxrss * 1024;
+diff --git a/libavutil/atomic_gcc.h b/libavutil/atomic_gcc.h
+--- a/libavutil/atomic_gcc.h
++++ b/libavutil/atomic_gcc.h
+@@ -28,7 +28,7 @@
+ #define avpriv_atomic_int_get atomic_int_get_gcc
+ static inline int atomic_int_get_gcc(volatile int *ptr)
+ {
+-#if HAVE_ATOMIC_COMPARE_EXCHANGE
++#if HAVE_ATOMIC_COMPARE_EXCHANGE && !defined(__native_client__)
+     return __atomic_load_n(ptr, __ATOMIC_SEQ_CST);
+ #else
+     __sync_synchronize();
+@@ -39,7 +39,7 @@ static inline int atomic_int_get_gcc(volatile int *ptr)
+ #define avpriv_atomic_int_set atomic_int_set_gcc
+ static inline void atomic_int_set_gcc(volatile int *ptr, int val)
+ {
+-#if HAVE_ATOMIC_COMPARE_EXCHANGE
++#if HAVE_ATOMIC_COMPARE_EXCHANGE && !defined(__native_client__)
+     __atomic_store_n(ptr, val, __ATOMIC_SEQ_CST);
+ #else
+     *ptr = val;
+@@ -50,7 +50,7 @@ static inline void atomic_int_set_gcc(volatile int *ptr, int val)
+ #define avpriv_atomic_int_add_and_fetch atomic_int_add_and_fetch_gcc
+ static inline int atomic_int_add_and_fetch_gcc(volatile int *ptr, int inc)
+ {
+-#if HAVE_ATOMIC_COMPARE_EXCHANGE
++#if HAVE_ATOMIC_COMPARE_EXCHANGE && !defined(__native_client__)
+     return __atomic_add_fetch(ptr, inc, __ATOMIC_SEQ_CST);
+ #else
+     return __sync_add_and_fetch(ptr, inc);
